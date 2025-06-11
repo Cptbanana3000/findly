@@ -1,0 +1,277 @@
+{
+  "google": {
+    "brandName": "google",
+    "analysis": {
+      "brandName": "google",
+      "overallScore": 30,
+      "recommendation": "Not Recommended. This name poses major branding challenges.",
+      "scores": {
+        "domainStrength": 40,
+        "competitionIntensity": 20,
+        "seoDifficulty": 60,
+        "socialMediaAvailability": 0
+      },
+      "keyInsights": [
+        {
+          "title": "Alternatives Found",
+          "points": "+15pts",
+          "description": "Good alternatives like .io or .ai are available.",
+          "type": "positive"
+        },
+        {
+          "title": "Social Challenges",
+          "points": "-20pts",
+          "description": "Limited social media handle availability.",
+          "type": "negative"
+        },
+        {
+          "title": "Risk Alert",
+          "points": "-30pts",
+          "description": "Direct competitors dominate search results.",
+          "type": "negative"
+        }
+      ],
+      "detailedAnalysis": {
+        "domainAvailability": [
+          {
+            "domain": "google.com",
+            "isAvailable": false
+          },
+          {
+            "domain": "google.io",
+            "isAvailable": true
+          },
+          {
+            "domain": "google.ai",
+            "isAvailable": false
+          },
+          {
+            "domain": "google.co",
+            "isAvailable": false
+          },
+          {
+            "domain": "google.org",
+            "isAvailable": false
+          },
+          {
+            "domain": "google.net",
+            "isAvailable": false
+          }
+        ],
+        "socialMediaAvailability": [
+          {
+            "platform": "Instagram",
+            "handle": "@google",
+            "url": "https://www.instagram.com/google/",
+            "available": false,
+            "status": 200,
+            "icon": "fab fa-instagram"
+          },
+          {
+            "platform": "Twitter",
+            "handle": "@google",
+            "url": "https://twitter.com/google",
+            "available": false,
+            "status": 200,
+            "icon": "fab fa-twitter"
+          },
+          {
+            "platform": "TikTok",
+            "handle": "@google",
+            "url": "https://www.tiktok.com/@google",
+            "available": false,
+            "status": 200,
+            "icon": "fab fa-tiktok"
+          },
+          {
+            "platform": "LinkedIn",
+            "handle": "@google",
+            "url": "https://www.linkedin.com/in/google",
+            "available": false,
+            "status": 200,
+            "icon": "fab fa-linkedin"
+          },
+          {
+            "platform": "YouTube",
+            "handle": "@google",
+            "url": "https://www.youtube.com/@google",
+            "available": false,
+            "status": 200,
+            "icon": "fab fa-youtube"
+          }
+        ],
+        "googleCompetition": {
+          "topResults": [
+            {
+              "title": "Google",
+              "link": "https://www.google.com/",
+              "snippet": "Search the world's information, including webpages, images, videos and more. Google has many special features to help you find exactly what you're looking ..."
+            },
+            {
+              "title": "Google Cloud: Cloud Computing Services",
+              "link": "https://cloud.google.com/",
+              "snippet": "Meet your business challenges head on with cloud computing services from Google, including data management, hybrid & multi-cloud, and AI & ML."
+            },
+            {
+              "title": "Google Maps",
+              "link": "https://maps.google.com/",
+              "snippet": "Find local businesses, view maps and get driving directions in Google Maps."
+            },
+            {
+              "title": "Analytics Tools & Solutions for Your Business - Google Analytics",
+              "link": "https://marketingplatform.google.com/about/analytics/",
+              "snippet": "Google Analytics gives you the tools, free of charge, to understand the customer journey and improve marketing ROI."
+            },
+            {
+              "title": "Google Trends",
+              "link": "https://trends.google.com/trends/",
+              "snippet": "See how Google Trends is being used across the world, by newsrooms, charities, and more. ‪‪Visualizing Google Trends data‬‬."
+            }
+          ]
+        }
+      },
+      "cached": false,
+      "analysisTime": "2025-06-11T08:24:20.052Z"
+    },
+    "timestamp": "2025-06-11T08:24:20.053Z",
+    "hitCount": 3,
+    "lastAccessed": "2025-06-11T08:34:40.956Z"
+  },
+  "netflix": {
+    "brandName": "netflix",
+    "analysis": {
+      "brandName": "netflix",
+      "overallScore": 30,
+      "recommendation": "Not Recommended. This name poses major branding challenges.",
+      "scores": {
+        "domainStrength": 40,
+        "competitionIntensity": 20,
+        "seoDifficulty": 60,
+        "socialMediaAvailability": 0
+      },
+      "keyInsights": [
+        {
+          "title": "Alternatives Found",
+          "points": "+15pts",
+          "description": "Good alternatives like .io or .ai are available.",
+          "type": "positive"
+        },
+        {
+          "title": "Social Challenges",
+          "points": "-20pts",
+          "description": "Limited social media handle availability.",
+          "type": "negative"
+        },
+        {
+          "title": "Risk Alert",
+          "points": "-30pts",
+          "description": "Direct competitors dominate search results.",
+          "type": "negative"
+        }
+      ],
+      "detailedAnalysis": {
+        "domainAvailability": [
+          {
+            "domain": "netflix.com",
+            "isAvailable": false
+          },
+          {
+            "domain": "netflix.io",
+            "isAvailable": true
+          },
+          {
+            "domain": "netflix.ai",
+            "isAvailable": false
+          },
+          {
+            "domain": "netflix.co",
+            "isAvailable": false
+          },
+          {
+            "domain": "netflix.org",
+            "isAvailable": false
+          },
+          {
+            "domain": "netflix.net",
+            "isAvailable": false
+          }
+        ],
+        "socialMediaAvailability": [
+          {
+            "platform": "Instagram",
+            "handle": "@netflix",
+            "url": "https://www.instagram.com/netflix/",
+            "available": false,
+            "status": 200,
+            "icon": "fab fa-instagram"
+          },
+          {
+            "platform": "Twitter",
+            "handle": "@netflix",
+            "url": "https://twitter.com/netflix",
+            "available": false,
+            "status": 200,
+            "icon": "fab fa-twitter"
+          },
+          {
+            "platform": "TikTok",
+            "handle": "@netflix",
+            "url": "https://www.tiktok.com/@netflix",
+            "available": false,
+            "status": 200,
+            "icon": "fab fa-tiktok"
+          },
+          {
+            "platform": "LinkedIn",
+            "handle": "@netflix",
+            "url": "https://www.linkedin.com/in/netflix",
+            "available": false,
+            "status": 200,
+            "icon": "fab fa-linkedin"
+          },
+          {
+            "platform": "YouTube",
+            "handle": "@netflix",
+            "url": "https://www.youtube.com/@netflix",
+            "available": false,
+            "status": 200,
+            "icon": "fab fa-youtube"
+          }
+        ],
+        "googleCompetition": {
+          "topResults": [
+            {
+              "title": "Netflix - Watch TV Shows Online, Watch Movies Online",
+              "link": "https://www.netflix.com/",
+              "snippet": "Netflix is a streaming service that offers a wide variety of award-winning TV shows, movies, anime, documentaries, and more on thousands of internet-connected ..."
+            },
+            {
+              "title": "Plans and Pricing | Netflix Help Center",
+              "link": "https://help.netflix.com/en/node/24926",
+              "snippet": "Netflix offers a variety of plans to meet your entertainment needs. As a Netflix member, you are charged monthly on the date you signed up."
+            },
+            {
+              "title": "Netflix",
+              "link": "https://www.netflix.com/Login",
+              "snippet": "Watch Netflix movies & TV shows online or stream right to your smart TV, game console, PC, Mac, mobile, tablet and more."
+            },
+            {
+              "title": "Netflix US (@netflix) • Instagram photos and videos",
+              "link": "https://www.instagram.com/netflix/",
+              "snippet": "37M followers · 1.5K+ following · 11018 posts · @netflix: “”"
+            },
+            {
+              "title": "Netflix - Apps on Google Play",
+              "link": "https://play.google.com/store/apps/details?id=com.netflix.mediaclient&hl=en_US",
+              "snippet": "Looking for the most talked about TV shows and movies from the around the world? They're all on Netflix. We've got award-winning series, movies, ..."
+            }
+          ]
+        }
+      },
+      "cached": false,
+      "analysisTime": "2025-06-11T08:33:29.800Z"
+    },
+    "timestamp": "2025-06-11T08:33:29.803Z",
+    "hitCount": 1
+  }
+}

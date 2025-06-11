@@ -90,17 +90,13 @@ function renderResults(data) {
     renderKeyInsights(data.keyInsights);
 }
 
-function renderBrandAnalysis({ brandName, overallScore, recommendation, cached }) {
+function renderBrandAnalysis({ brandName, overallScore, recommendation }) {
     const scoreColor = overallScore > 75 ? 'text-green-500' : overallScore > 50 ? 'text-yellow-500' : 'text-red-500';
     let verdictTitle;
     if (overallScore > 80) { verdictTitle = "Excellent Prospect"; }
     else if (overallScore > 60) { verdictTitle = "Strong Contender"; }
     else if (overallScore > 40) { verdictTitle = "Proceed with Caution"; }
     else { verdictTitle = "Not Recommended"; }
-    
-    const cacheIndicator = cached ? 
-        '<span class="cache-indicator"><i class="fas fa-bolt text-yellow-500"></i> Cached Result</span>' : 
-        '<span class="cache-indicator fresh"><i class="fas fa-refresh text-blue-500"></i> Fresh Analysis</span>';
 
     const container = document.getElementById('brand-analysis-card');
     container.innerHTML = `
@@ -114,7 +110,6 @@ function renderBrandAnalysis({ brandName, overallScore, recommendation, cached }
             </div>
             <p class="mt-2 text-center text-lg font-bold text-slate-800">${brandName}</p>
             <p class="text-center text-sm text-slate-500 font-medium">Overall Viability Score</p>
-            <p class="text-center text-xs mt-1">${cacheIndicator}</p>
         </div>
         <div class="flex-grow">
             <h3 class="font-bold text-xl text-slate-800">VERDICT: <span class="${scoreColor}">${verdictTitle}</span></h3>

@@ -1,0 +1,85 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions for validation
+    function isValidBrandName(brandName) {
+      return brandName is string && 
+             brandName.size() > 0 && 
+             brandName.size() <= 100 &&
+             brandName.matches('^[a-zA-Z0-9\\s\\-_]+$');
+    }
+    
+    function isValidAnalysisData(data) {
+      return data.keys().hasAll(['brandName', 'analysis', 'timestamp']) &&
+             isValidBrandName(data.brandName) &&
+             data.analysis is map &&
+             data.timestamp is timestamp;
+    }
+    
+    function isValidAnalyticsData(data) {
+      return data.keys().hasAll(['action', 'timestamp']) &&
+             data.action is string &&
+             data.action in ['cache_hit', 'analysis_cached', 'fresh_analysis_started', 'analysis_error'] &&
+             data.timestamp is timestamp;
+    }
+    
+    // Brand analyses collection - for caching analysis results
+    match /brand_analyses/{analysisId} {
+      // Allow read access to all cached analyses
+      allow read: if true;
+      
+      // Allow create with valid data structure
+      allow create: if isValidAnalysisData(resource.data) &&
+                   analysisId == resource.data.brandName.lower();
+      
+      // Allow update to existing documents (for hit count updates)
+      allow update: if isValidAnalysisData(resource.data) &&
+                   analysisId == resource.data.brandName.lower() &&
+                   // Only allow updating specific fields
+                   request.data.diff(resource.data).affectedKeys()
+                     .hasOnly(['hitCount', 'lastAccessed']);
+      
+      // Allow delete for cache cleanup (with time restriction)
+      allow delete: if resource.data.timestamp < timestamp.date(2024, 1, 1) ||
+                   resource.data.timestamp < timestamp.now() - duration.value(30, 'd');
+    }
+    
+    // Usage analytics collection - for tracking user behavior
+    match /usage_analytics/{analyticsId} {
+      // Allow read access for generating analytics reports
+      allow read: if true;
+      
+      // Allow create with valid analytics data
+      allow create: if isValidAnalyticsData(request.data) &&
+                   // Prevent spam by checking timestamp is recent
+                   request.data.timestamp > timestamp.now() - duration.value(1, 'm') &&
+                   request.data.timestamp <= timestamp.now();
+      
+      // Generally don't allow updates to analytics data (immutable)
+      allow update: if false;
+      
+      // Don't allow delete of analytics data
+      allow delete: if false;
+    }
+    
+    // System collections (for configuration, etc.)
+    match /system/{document} {
+      // Only allow reading system configuration
+      allow read: if document in ['config', 'status'];
+      allow write: if false;
+    }
+    
+    // Admin collection (future use for admin dashboard)
+    match /admin/{document=**} {
+      // Restrict admin access - will be updated when authentication is added
+      allow read, write: if false;
+    }
+    
+    // Deny access to all other collections by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+} 

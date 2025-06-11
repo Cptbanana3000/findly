@@ -6,7 +6,7 @@ const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
 
-// Import database service
+// Import database service (switched back to Firebase with fixed config)
 const databaseService = require('./services/database');
 
 const app = express();
@@ -367,6 +367,6 @@ app.get('/analytics', async (req, res) => {
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
-  console.log('🔥 Firebase Firestore integration active');
+  console.log('🔥 Firebase Firestore integration active (config fixed!)');
   console.log('📊 Analytics and caching enabled');
 });

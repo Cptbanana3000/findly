@@ -1,0 +1,56 @@
+{
+  "events": [
+    {
+      "id": 1749630254770.051,
+      "action": "fresh_analysis_started",
+      "brandName": "google",
+      "timestamp": "2025-06-11T08:24:14.770Z"
+    },
+    {
+      "id": 1749630260062.3054,
+      "action": "analysis_cached",
+      "brandName": "google",
+      "timestamp": "2025-06-11T08:24:20.062Z"
+    },
+    {
+      "id": 1749630260064.8328,
+      "action": "fresh_analysis_completed",
+      "brandName": "google",
+      "timestamp": "2025-06-11T08:24:20.064Z",
+      "overallScore": 30,
+      "hasErrors": false
+    },
+    {
+      "id": 1749630283083.3884,
+      "action": "cache_hit",
+      "brandName": "google",
+      "timestamp": "2025-06-11T08:24:43.083Z"
+    },
+    {
+      "id": 1749630804294.207,
+      "action": "fresh_analysis_started",
+      "brandName": "netflix",
+      "timestamp": "2025-06-11T08:33:24.294Z"
+    },
+    {
+      "id": 1749630809810.947,
+      "action": "analysis_cached",
+      "brandName": "netflix",
+      "timestamp": "2025-06-11T08:33:29.810Z"
+    },
+    {
+      "id": 1749630809812.5767,
+      "action": "fresh_analysis_completed",
+      "brandName": "netflix",
+      "timestamp": "2025-06-11T08:33:29.812Z",
+      "overallScore": 30,
+      "hasErrors": false
+    },
+    {
+      "id": 1749630880950.2249,
+      "action": "cache_hit",
+      "brandName": "google",
+      "timestamp": "2025-06-11T08:34:40.950Z"
+    }
+  ]
+}
