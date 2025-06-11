@@ -9,6 +9,9 @@ require('dotenv').config();
 // Import database service (switched back to Firebase with fixed config)
 const databaseService = require('./services/database');
 
+// Import Deep Scan service for premium competitor analysis
+const deepScanService = require('./services/deepScan');
+
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -362,6 +365,71 @@ app.get('/analytics', async (req, res) => {
   } catch (error) {
     console.error('Error getting analytics:', error);
     res.status(500).json({ message: 'Error retrieving analytics' });
+  }
+});
+
+// Deep Scan endpoint (Premium feature)
+app.post('/deep-scan', async (req, res) => {
+  try {
+    const { competitorUrl, brandName } = req.body;
+    
+    if (!competitorUrl || !brandName) {
+      return res.status(400).json({ 
+        message: 'Missing required parameters: competitorUrl and brandName' 
+      });
+    }
+
+    console.log(`🔍 Deep Scan requested for: ${competitorUrl} vs ${brandName}`);
+    
+    // Track deep scan analytics
+    await databaseService.updateAnalytics('deep_scan_started', brandName, {
+      competitorUrl: competitorUrl
+    });
+
+    // Perform deep scan with AI analysis
+    const result = await deepScanService.performDeepScan(competitorUrl, brandName);
+
+    if (result.success) {
+      // Track successful deep scan
+      await databaseService.updateAnalytics('deep_scan_completed', brandName, {
+        competitorUrl: competitorUrl,
+        wordCount: result.scrapedData.wordCount,
+        internalLinks: result.scrapedData.internalLinks
+      });
+
+      res.json({
+        success: true,
+        brandName: brandName,
+        competitorUrl: competitorUrl,
+        scrapedData: result.scrapedData,
+        analysis: result.analysis,
+        timestamp: result.timestamp
+      });
+    } else {
+      // Track failed deep scan
+      await databaseService.updateAnalytics('deep_scan_failed', brandName, {
+        competitorUrl: competitorUrl,
+        error: result.error
+      });
+
+      res.status(500).json({
+        success: false,
+        message: result.error || 'Deep scan failed'
+      });
+    }
+
+  } catch (error) {
+    console.error('Deep Scan endpoint error:', error);
+    
+    // Track error
+    await databaseService.updateAnalytics('deep_scan_error', req.body.brandName || 'unknown', {
+      error: error.message
+    });
+
+    res.status(500).json({ 
+      success: false,
+      message: 'An error occurred during deep scan analysis' 
+    });
   }
 });
 
