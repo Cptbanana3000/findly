@@ -242,8 +242,8 @@
                                 <div class="text-sm text-slate-600">Data Points</div>
                             </div>
                             <div class="text-center">
-                                <div class="text-2xl font-bold text-emerald-600">${data.aiAnalysis ? '✓' : '✗'}</div>
-                                <div class="text-sm text-slate-600">AI Analysis</div>
+                                <div class="text-2xl font-bold text-emerald-600">${data.aiAnalyses?.length || 0}</div>
+                                <div class="text-sm text-slate-600">AI Analyses</div>
                             </div>
                             <div class="text-center">
                                 <div class="text-2xl font-bold text-amber-600">${data.timestamp ? new Date(data.timestamp).toLocaleDateString() : 'N/A'}</div>
@@ -253,19 +253,27 @@
                     </div>
                     
                     <!-- AI Analysis Results -->
-                    ${data.aiAnalysis ? `
+                    ${data.aiAnalyses && data.aiAnalyses.length > 0 ? `
                         <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-lg">
                             <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6">
                                 <h4 class="text-xl font-bold flex items-center">
                                     <i class="fas fa-robot mr-3"></i>
-                                    AI Strategic Analysis
+                                    AI Strategic Analysis (${data.aiAnalyses.length} Reports)
                                 </h4>
                                 <p class="text-blue-100 mt-2">Expert-level competitive intelligence powered by GPT-4</p>
                             </div>
-                            <div class="p-6">
-                                <div class="prose max-w-none">
-                                    ${formatAIAnalysis(data.aiAnalysis)}
-                                </div>
+                            <div class="p-6 space-y-8">
+                                ${data.aiAnalyses.map((analysisItem, index) => `
+                                    <div class="border-l-4 border-purple-500 pl-6 ${index > 0 ? 'pt-8 border-t border-gray-200' : ''}">
+                                        <h5 class="text-lg font-bold text-slate-800 mb-4 flex items-center">
+                                            <i class="fas fa-link text-purple-600 mr-2"></i>
+                                            ${analysisItem.competitorUrl}
+                                        </h5>
+                                        <div class="prose max-w-none">
+                                            ${formatAIAnalysis(analysisItem.analysis)}
+                                        </div>
+                                    </div>
+                                `).join('')}
                             </div>
                         </div>
                     ` : ''}
@@ -276,7 +284,7 @@
                             <div class="bg-gray-50 p-6 border-b">
                                 <h4 class="text-xl font-bold text-slate-800 flex items-center">
                                     <i class="fas fa-database mr-3"></i>
-                                    Scraped Competitor Data
+                                    Competitor Intelligence Data
                                 </h4>
                             </div>
                             <div class="p-6">
@@ -288,9 +296,6 @@
                                                     <i class="fas fa-external-link-alt mr-2 text-blue-500"></i>
                                                     ${competitor.url}
                                                 </h5>
-                                                <span class="px-3 py-1 rounded-full text-xs font-bold ${competitor.hasSSL ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}">
-                                                    ${competitor.hasSSL ? 'SSL ✓' : 'No SSL ✗'}
-                                                </span>
                                             </div>
                                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm mb-4">
                                                 <div>

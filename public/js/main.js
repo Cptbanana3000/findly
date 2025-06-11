@@ -324,7 +324,7 @@ function renderDeepScanSection(data) {
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div class="p-6 bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl border border-purple-200">
                     <i class="fas fa-spider text-purple-600 text-2xl mb-3"></i>
-                    <h4 class="font-bold text-slate-800 mb-2">Web Scraping</h4>
+                    <h4 class="font-bold text-slate-800 mb-2">Web Intelligence</h4>
                     <p class="text-sm text-slate-600">Extract competitor data & SEO insights</p>
                 </div>
                 <div class="p-6 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl border border-blue-200">
@@ -377,7 +377,7 @@ async function startDeepScan(brandName) {
             <div class="text-center">
                 <div class="inline-flex items-center px-4 py-2 bg-blue-50 rounded-lg border border-blue-200">
                     <i class="fas fa-spinner fa-spin text-blue-600 mr-2"></i>
-                    <span class="text-blue-600 font-medium">Scraping competitor websites...</span>
+                    <span class="text-blue-600 font-medium">Analyzing competitor websites...</span>
                 </div>
             </div>
             <div class="max-w-md mx-auto">
@@ -423,6 +423,8 @@ async function startDeepScan(brandName) {
 }
 
 function renderDeepScanResults(data) {
+    console.log('🔍 Rendering Deep Scan Results:', data);
+    console.log('📊 AI Analyses:', data.aiAnalyses);
     const content = document.getElementById('deep-scan-content');
     
     content.innerHTML = `
@@ -443,8 +445,8 @@ function renderDeepScanResults(data) {
                         <div class="text-sm text-slate-600">Data Points</div>
                     </div>
                     <div class="text-center">
-                        <div class="text-2xl font-bold text-emerald-600">${data.aiAnalysis ? '✓' : '✗'}</div>
-                        <div class="text-sm text-slate-600">AI Analysis</div>
+                        <div class="text-2xl font-bold text-emerald-600">${data.aiAnalyses?.length || 0}</div>
+                        <div class="text-sm text-slate-600">AI Analyses</div>
                     </div>
                     <div class="text-center">
                         <div class="text-2xl font-bold text-amber-600">${data.timestamp ? new Date(data.timestamp).toLocaleDateString() : 'N/A'}</div>
@@ -454,19 +456,27 @@ function renderDeepScanResults(data) {
             </div>
             
             <!-- AI Analysis Results -->
-            ${data.aiAnalysis ? `
+            ${data.aiAnalyses && data.aiAnalyses.length > 0 ? `
                 <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-lg">
                     <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6">
                         <h4 class="text-xl font-bold flex items-center">
                             <i class="fas fa-robot mr-3"></i>
-                            AI Strategic Analysis
+                            AI Strategic Analysis (${data.aiAnalyses.length} Reports)
                         </h4>
                         <p class="text-blue-100 mt-2">Expert-level competitive intelligence powered by GPT-4</p>
                     </div>
-                    <div class="p-6">
-                        <div class="prose max-w-none">
-                            ${formatAIAnalysis(data.aiAnalysis)}
-                        </div>
+                    <div class="p-6 space-y-8">
+                        ${data.aiAnalyses.map((analysisItem, index) => `
+                            <div class="border-l-4 border-purple-500 pl-6 ${index > 0 ? 'pt-8 border-t border-gray-200' : ''}">
+                                <h5 class="text-lg font-bold text-slate-800 mb-4 flex items-center">
+                                    <i class="fas fa-link text-purple-600 mr-2"></i>
+                                    ${analysisItem.competitorUrl}
+                                </h5>
+                                <div class="prose max-w-none">
+                                    ${formatAIAnalysis(analysisItem.analysis)}
+                                </div>
+                            </div>
+                        `).join('')}
                     </div>
                 </div>
             ` : ''}
@@ -477,7 +487,7 @@ function renderDeepScanResults(data) {
                     <div class="bg-gray-50 p-6 border-b">
                         <h4 class="text-xl font-bold text-slate-800 flex items-center">
                             <i class="fas fa-database mr-3"></i>
-                            Scraped Competitor Data
+                            Competitor Intelligence Data
                         </h4>
                     </div>
                     <div class="p-6">
@@ -489,9 +499,6 @@ function renderDeepScanResults(data) {
                                             <i class="fas fa-external-link-alt mr-2 text-blue-500"></i>
                                             ${competitor.url}
                                         </h5>
-                                        <span class="px-3 py-1 rounded-full text-xs font-bold ${competitor.isSSL ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}">
-                                            ${competitor.isSSL ? 'SSL ✓' : 'No SSL ✗'}
-                                        </span>
                                     </div>
                                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm mb-4">
                                         <div>
@@ -508,7 +515,7 @@ function renderDeepScanResults(data) {
                                         </div>
                                         <div>
                                             <span class="text-slate-600 font-medium">Images:</span>
-                                            <div class="font-medium text-slate-800">${competitor.imageCount || 0}</div>
+                                            <div class="font-medium text-slate-800">${competitor.images || 0}</div>
                                         </div>
                                     </div>
                                     ${competitor.metaDescription ? `
@@ -517,10 +524,10 @@ function renderDeepScanResults(data) {
                                             <div class="mt-1 text-slate-700">${competitor.metaDescription}</div>
                                         </div>
                                     ` : ''}
-                                    ${competitor.h1Tags && competitor.h1Tags.length > 0 ? `
+                                    ${competitor.h1 ? `
                                         <div class="mt-3 p-3 bg-blue-50 rounded text-sm">
-                                            <span class="text-slate-600 font-medium">H1 Tags:</span>
-                                            <div class="mt-1 text-slate-700">${competitor.h1Tags.join(', ')}</div>
+                                            <span class="text-slate-600 font-medium">H1 Tag:</span>
+                                            <div class="mt-1 text-slate-700">${competitor.h1}</div>
                                         </div>
                                     ` : ''}
                                 </div>
@@ -558,6 +565,7 @@ function renderDeepScanResults(data) {
 }
 
 function formatAIAnalysis(analysis) {
+    console.log('🎨 Formatting AI Analysis:', analysis);
     if (!analysis) return '';
     
     // Convert the AI analysis text to HTML with proper formatting

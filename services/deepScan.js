@@ -69,7 +69,7 @@ class DeepScanService {
       // Get the final URL after redirects (the actual URL that was reached)
       const finalUrl = response.request.res?.responseUrl || response.config.url || url;
 
-      // Extract key data points (17 comprehensive metrics)
+      // Extract key data points (16 comprehensive metrics)
       const analyzedData = {
         url: finalUrl,
         title: $('title').text().trim() || 'No title found',
@@ -80,7 +80,6 @@ class DeepScanService {
         wordCount: this.estimateWordCount($('body').text()),
         internalLinks: this.countInternalLinks($, finalUrl),
         externalLinks: this.countExternalLinks($, finalUrl),
-        hasSSL: finalUrl.startsWith('https://'),
         images: $('img').length,
         imagesWithAlt: $('img[alt]').length,
         socialLinks: this.findSocialLinks($),
@@ -110,7 +109,7 @@ class DeepScanService {
       
       const prompt = `You are an expert-level SEO and Digital Marketing Strategist. Your name is "Aura," and you provide brutally honest, data-driven competitive analysis.
 
-Your primary task is to generate a "DEEP SCAN ANALYSIS" report. You will analyze a competitor's scraped data to identify their strategy, threats, and opportunities for a user's brand. You must then formulate a recommended counter-strategy.
+Your primary task is to generate a "DEEP SCAN ANALYSIS" report. You will analyze a competitor's intelligence data to identify their strategy, threats, and opportunities for a user's brand. You must then formulate a recommended counter-strategy.
 
 Your analysis must be sharp, insightful, and presented in the exact format specified below.
 
@@ -119,7 +118,7 @@ IMPORTANT: Your final output MUST follow this exact format, including all emojis
 **User's Brand Name:** "${userBrandName}"
 **Competitor's Domain:** "${domain}"
 
-**Competitor's Analyzed Data (17 Key Metrics):**
+**Competitor's Analyzed Data (16 Key Metrics):**
 \`\`\`json
 ${JSON.stringify(analyzedData, null, 2)}
 \`\`\`
@@ -225,17 +224,98 @@ DEEP SCAN ANALYSIS: ${domain}
     return count;
   }
 
+  // Smart domain deduplication to avoid analyzing the same company multiple times
+  deduplicateByDomain(urls) {
+    const domainMap = new Map();
+    const skippedUrls = [];
+    
+    for (const url of urls) {
+      try {
+        // Clean and parse URL
+        const cleanUrl = url.startsWith('http') ? url : `https://${url}`;
+        const urlObj = new URL(cleanUrl);
+        const hostname = urlObj.hostname.toLowerCase();
+        
+        // Extract root domain (remove subdomains for major cases)
+        const rootDomain = this.extractRootDomain(hostname);
+        
+        if (!domainMap.has(rootDomain)) {
+          // First URL for this domain
+          domainMap.set(rootDomain, {
+            url: cleanUrl,
+            hostname: hostname,
+            isMainDomain: hostname === rootDomain // True if it's the main domain (no subdomain)
+          });
+        } else {
+          // If we already have this domain, prefer the main domain over subdomains
+          const existing = domainMap.get(rootDomain);
+          const currentIsMainDomain = hostname === rootDomain;
+          
+          // Replace if current URL is the main domain and existing is not
+          if (currentIsMainDomain && !existing.isMainDomain) {
+            skippedUrls.push(existing.url); // Track the URL we're replacing
+            domainMap.set(rootDomain, {
+              url: cleanUrl,
+              hostname: hostname,
+              isMainDomain: currentIsMainDomain
+            });
+          } else {
+            skippedUrls.push(cleanUrl); // Track the URL we're skipping
+          }
+        }
+      } catch (error) {
+        console.error(`❌ Error parsing URL: ${url}`, error.message);
+      }
+    }
+    
+    // Return array of unique URLs
+    const uniqueUrls = Array.from(domainMap.values()).map(item => item.url);
+    console.log(`🔍 Deduplication: ${urls.length} URLs → ${uniqueUrls.length} unique competitors`);
+    
+    // Log the deduplication details
+    console.log('🎯 Selected URLs:');
+    for (const [domain, info] of domainMap) {
+      console.log(`  ✓ ${domain} → ${info.url} ${info.isMainDomain ? '(main domain)' : '(subdomain)'}`);
+    }
+    
+    if (skippedUrls.length > 0) {
+      console.log('⏭️  Skipped duplicate domains:');
+      skippedUrls.forEach(url => console.log(`  - ${url}`));
+    }
+    
+    return uniqueUrls;
+  }
+
+  // Extract root domain from hostname
+  extractRootDomain(hostname) {
+    const parts = hostname.split('.');
+    
+    // Handle common cases
+    if (parts.length >= 2) {
+      // For cases like dashboard.stripe.com → stripe.com
+      // But preserve different TLDs like stripe.org vs stripe.com
+      const domain = parts.slice(-2).join('.');
+      return domain;
+    }
+    
+    return hostname;
+  }
+
   // Function to perform deep scan on multiple competitors
   async performMultipleDeepScan(competitorUrls, brandName) {
     console.log(`🚀 Starting multi-competitor deep scan for: ${brandName}`);
-    console.log(`📊 Analyzing ${competitorUrls.length} competitors:`, competitorUrls);
+    console.log(`📊 Raw competitor URLs:`, competitorUrls);
     
     try {
       const results = [];
       let totalDataPoints = 0;
       
-      // Analyze each competitor (process all available URLs for comprehensive analysis)
-      const urlsToProcess = competitorUrls.slice(0, 5); // Analyze up to 5 competitors
+      // Deduplicate URLs by root domain to avoid analyzing the same company multiple times
+      const uniqueCompetitors = this.deduplicateByDomain(competitorUrls);
+      console.log(`🎯 Unique competitors after deduplication (${uniqueCompetitors.length} companies):`, uniqueCompetitors.map(url => new URL(url).hostname));
+      
+      // Analyze each unique competitor (up to 5 different companies)
+      const urlsToProcess = uniqueCompetitors.slice(0, 5);
       
       for (let i = 0; i < urlsToProcess.length; i++) {
         const url = urlsToProcess[i];
@@ -245,7 +325,7 @@ DEEP SCAN ANALYSIS: ${domain}
           const analyzedData = await this.analyzeWebsite(url);
           if (analyzedData) {
             results.push(analyzedData);
-            // Count data points (17 metrics per competitor)
+            // Count data points (16 metrics per competitor)
             totalDataPoints += Object.keys(analyzedData).length;
           }
         } catch (error) {
@@ -263,20 +343,33 @@ DEEP SCAN ANALYSIS: ${domain}
       
       console.log(`✅ Successfully analyzed ${results.length} competitors`);
       
-      // Generate AI analysis for the best competitor (highest word count)
-      const bestCompetitor = results.reduce((best, current) => 
-        current.wordCount > best.wordCount ? current : best
-      );
+      // Generate AI analysis for ALL successfully analyzed competitors
+      console.log(`🤖 Generating AI analysis for all ${results.length} competitors...`);
+      const aiAnalyses = [];
       
-      console.log('🤖 Generating AI analysis for best competitor...');
-      const aiAnalysis = await this.generateAIAnalysis(bestCompetitor, brandName, bestCompetitor.url);
+      for (let i = 0; i < results.length; i++) {
+        const competitor = results[i];
+        console.log(`🧠 Analyzing competitor ${i + 1}/${results.length}: ${competitor.url}`);
+        
+        try {
+          const analysis = await this.generateAIAnalysis(competitor, brandName, competitor.url);
+          aiAnalyses.push({
+            competitorUrl: competitor.url,
+            analysis: analysis,
+            competitorData: competitor
+          });
+        } catch (error) {
+          console.error(`❌ Failed to generate AI analysis for ${competitor.url}:`, error.message);
+          // Continue with other competitors even if AI analysis fails for one
+        }
+      }
       
       return {
         success: true,
         data: {
           brandName: brandName,
           competitors: results,
-          aiAnalysis: aiAnalysis,
+          aiAnalyses: aiAnalyses, // Multiple analyses instead of single aiAnalysis
           totalDataPoints: totalDataPoints,
           timestamp: new Date().toISOString()
         }

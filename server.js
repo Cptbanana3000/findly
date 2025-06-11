@@ -402,7 +402,8 @@ app.post('/deep-scan', async (req, res) => {
       // Track successful deep scan
       await databaseService.updateAnalytics('deep_scan_completed', brandName, {
         competitorsAnalyzed: result.data.competitors?.length || 0,
-        totalDataPoints: result.data.totalDataPoints || 0
+        totalDataPoints: result.data.totalDataPoints || 0,
+        aiAnalysesGenerated: result.data.aiAnalyses?.length || 0
       });
 
       res.json({
@@ -410,7 +411,7 @@ app.post('/deep-scan', async (req, res) => {
         data: {
           brandName: brandName,
           competitors: result.data.competitors,
-          aiAnalysis: result.data.aiAnalysis,
+          aiAnalyses: result.data.aiAnalyses, // Multiple AI analyses
           totalDataPoints: result.data.totalDataPoints,
           timestamp: result.data.timestamp
         }
