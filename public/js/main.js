@@ -85,17 +85,22 @@ function renderResults(data) {
     renderBrandAnalysis(data);
     renderCompetitionMetrics(data.scores);
     renderDomainAnalysis(data);
+    renderSocialMediaAnalysis(data);
     renderGoogleAnalysis(data);
     renderKeyInsights(data.keyInsights);
 }
 
-function renderBrandAnalysis({ brandName, overallScore, recommendation }) {
+function renderBrandAnalysis({ brandName, overallScore, recommendation, cached }) {
     const scoreColor = overallScore > 75 ? 'text-green-500' : overallScore > 50 ? 'text-yellow-500' : 'text-red-500';
     let verdictTitle;
     if (overallScore > 80) { verdictTitle = "Excellent Prospect"; }
     else if (overallScore > 60) { verdictTitle = "Strong Contender"; }
     else if (overallScore > 40) { verdictTitle = "Proceed with Caution"; }
     else { verdictTitle = "Not Recommended"; }
+    
+    const cacheIndicator = cached ? 
+        '<span class="cache-indicator"><i class="fas fa-bolt text-yellow-500"></i> Cached Result</span>' : 
+        '<span class="cache-indicator fresh"><i class="fas fa-refresh text-blue-500"></i> Fresh Analysis</span>';
 
     const container = document.getElementById('brand-analysis-card');
     container.innerHTML = `
@@ -109,6 +114,7 @@ function renderBrandAnalysis({ brandName, overallScore, recommendation }) {
             </div>
             <p class="mt-2 text-center text-lg font-bold text-slate-800">${brandName}</p>
             <p class="text-center text-sm text-slate-500 font-medium">Overall Viability Score</p>
+            <p class="text-center text-xs mt-1">${cacheIndicator}</p>
         </div>
         <div class="flex-grow">
             <h3 class="font-bold text-xl text-slate-800">VERDICT: <span class="${scoreColor}">${verdictTitle}</span></h3>
@@ -119,11 +125,12 @@ function renderBrandAnalysis({ brandName, overallScore, recommendation }) {
 
 function renderCompetitionMetrics(scores) {
     const container = document.getElementById('competition-metrics-card');
-    container.innerHTML = `<h3 class="text-lg font-bold text-slate-900 mb-4">Competition Metrics</h3>
-        <div class="flex justify-around items-center text-center">
+    container.innerHTML = `<h3 class="text-lg font-bold text-slate-900 mb-4">Brand Metrics</h3>
+        <div class="grid grid-cols-2 gap-4 text-center">
             ${createMetricCircle(scores.competitionIntensity, 'Competition')}
             ${createMetricCircle(scores.seoDifficulty, 'SEO')}
-            ${createMetricCircle(scores.domainStrength, 'Strength')}
+            ${createMetricCircle(scores.domainStrength, 'Domains')}
+            ${createMetricCircle(scores.socialMediaAvailability, 'Social')}
         </div>`;
 }
 
@@ -184,6 +191,50 @@ function renderDomainAnalysis({ brandName, detailedAnalysis }) {
             Alternative Domains
         </h4>
         <ul class="space-y-3">${alternativesHtml}</ul>`;
+}
+
+function renderSocialMediaAnalysis({ brandName, detailedAnalysis }) {
+    const container = document.getElementById('social-media-card');
+    const socialData = detailedAnalysis.socialMediaAvailability || [];
+    
+    let socialHtml = '';
+    if (socialData.length > 0) {
+        socialHtml = socialData.map(platform => {
+            const statusClass = platform.available ? 'text-green-600' : 'text-red-500';
+            const statusIcon = platform.available ? 'fas fa-check-circle' : 'fas fa-times-circle';
+            const statusText = platform.available ? 'Available' : 'Taken';
+            const bgClass = platform.available ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200';
+            
+            return `
+                <div class="flex items-center justify-between p-3 rounded-lg border ${bgClass} transition-all duration-200 hover:scale-105">
+                    <div class="flex items-center space-x-3">
+                        <i class="${platform.icon} text-lg text-slate-600"></i>
+                        <div>
+                            <span class="font-medium text-slate-800">${platform.platform}</span>
+                            <div class="text-sm text-slate-500">${platform.handle}</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <i class="${statusIcon} ${statusClass}"></i>
+                        <span class="font-medium ${statusClass}">${statusText}</span>
+                    </div>
+                </div>`;
+        }).join('');
+    } else {
+        socialHtml = `
+            <div class="text-center p-8 bg-yellow-50 rounded-xl border border-yellow-200">
+                <i class="fas fa-exclamation-triangle text-yellow-500 text-3xl mb-3"></i>
+                <p class="text-yellow-700 font-medium">Social media check unavailable</p>
+                <p class="text-yellow-600 text-sm mt-1">Please check handles manually.</p>
+            </div>`;
+    }
+
+    container.innerHTML = `
+        <h3 class="text-xl font-bold text-slate-900 mb-6 flex items-center">
+            <i class="fas fa-share-alt text-purple-600 mr-3"></i>
+            Social Media Handles
+        </h3>
+        <div class="space-y-3">${socialHtml}</div>`;
 }
 
 function renderGoogleAnalysis({ brandName, detailedAnalysis }) {

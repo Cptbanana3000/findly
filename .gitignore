@@ -68,4 +68,10 @@ Thumbs.db
 
 # Local development
 .vscode/
-.fleet/ 
+.fleet/
+
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+.env.firebase 
