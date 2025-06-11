@@ -88,6 +88,7 @@ function renderResults(data) {
     renderSocialMediaAnalysis(data);
     renderGoogleAnalysis(data);
     renderKeyInsights(data.keyInsights);
+    renderDeepScanSection(data);
 }
 
 function renderBrandAnalysis({ brandName, overallScore, recommendation }) {
@@ -300,4 +301,280 @@ function renderKeyInsights(insights) {
                 <p class="text-sm text-slate-700 leading-relaxed">${insight.description}</p>
             </div>`;
     }).join('');
+}
+
+// ===== DEEP SCAN FUNCTIONALITY =====
+
+// Deep Scan Section Rendering
+function renderDeepScanSection(data) {
+    const card = document.getElementById('deep-scan-card');
+    
+    card.innerHTML = `
+        <div class="text-center">
+            <div class="flex items-center justify-center mb-6">
+                <div class="w-16 h-16 gradient-bg rounded-2xl flex items-center justify-center mr-4">
+                    <i class="fas fa-microscope text-white text-2xl"></i>
+                </div>
+                <div class="text-left">
+                    <h3 class="text-2xl font-bold text-slate-800">Deep Scan Analysis</h3>
+                    <p class="text-slate-600">AI-powered competitive intelligence</p>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="p-6 bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl border border-purple-200">
+                    <i class="fas fa-spider text-purple-600 text-2xl mb-3"></i>
+                    <h4 class="font-bold text-slate-800 mb-2">Web Scraping</h4>
+                    <p class="text-sm text-slate-600">Extract competitor data & SEO insights</p>
+                </div>
+                <div class="p-6 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl border border-blue-200">
+                    <i class="fas fa-brain text-blue-600 text-2xl mb-3"></i>
+                    <h4 class="font-bold text-slate-800 mb-2">AI Analysis</h4>
+                    <p class="text-sm text-slate-600">GPT-powered strategic recommendations</p>
+                </div>
+                <div class="p-6 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl border border-emerald-200">
+                    <i class="fas fa-chart-line text-emerald-600 text-2xl mb-3"></i>
+                    <h4 class="font-bold text-slate-800 mb-2">Threat Assessment</h4>
+                    <p class="text-sm text-slate-600">Competitive threat level scoring</p>
+                </div>
+            </div>
+            
+            <div id="deep-scan-content">
+                <div class="flex justify-center space-x-4">
+                    <button 
+                        id="start-deep-scan" 
+                        class="btn-primary text-white font-semibold py-4 px-8 rounded-xl transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-purple-300"
+                        onclick="startDeepScan('${data.brandName}')"
+                    >
+                        <i class="fas fa-rocket mr-2"></i>
+                        Launch Deep Scan
+                    </button>
+                    <div class="flex items-center text-slate-600 bg-amber-50 px-4 py-2 rounded-lg border border-amber-200">
+                        <i class="fas fa-flask mr-2 text-amber-600"></i>
+                        <span class="text-sm">Dev Mode - Free Access</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Deep Scan Functions
+async function startDeepScan(brandName) {
+    const button = document.getElementById('start-deep-scan');
+    const content = document.getElementById('deep-scan-content');
+    
+    // Show loading state
+    button.disabled = true;
+    button.innerHTML = `
+        <i class="fas fa-spinner fa-spin mr-2"></i>
+        Analyzing Competitors...
+    `;
+    
+    // Add progress indicator
+    content.innerHTML += `
+        <div id="deep-scan-progress" class="mt-6 space-y-4">
+            <div class="text-center">
+                <div class="inline-flex items-center px-4 py-2 bg-blue-50 rounded-lg border border-blue-200">
+                    <i class="fas fa-spinner fa-spin text-blue-600 mr-2"></i>
+                    <span class="text-blue-600 font-medium">Scraping competitor websites...</span>
+                </div>
+            </div>
+            <div class="max-w-md mx-auto">
+                <div class="bg-gray-200 rounded-full h-2">
+                    <div class="bg-gradient-to-r from-purple-600 to-blue-600 h-2 rounded-full animate-pulse" style="width: 33%"></div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    try {
+        const response = await fetch('/deep-scan', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ brandName })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            renderDeepScanResults(result.data);
+        } else {
+            throw new Error(result.error || 'Deep scan failed');
+        }
+    } catch (error) {
+        console.error('Deep scan error:', error);
+        content.innerHTML = `
+            <div class="text-center py-8">
+                <i class="fas fa-exclamation-triangle text-red-500 text-3xl mb-4"></i>
+                <h4 class="text-lg font-bold text-slate-800 mb-2">Analysis Failed</h4>
+                <p class="text-slate-600 mb-4">${error.message}</p>
+                <button 
+                    onclick="renderDeepScanSection({brandName: '${brandName}'})" 
+                    class="text-purple-600 hover:text-purple-700 font-medium"
+                >
+                    Try Again
+                </button>
+            </div>
+        `;
+    }
+}
+
+function renderDeepScanResults(data) {
+    const content = document.getElementById('deep-scan-content');
+    
+    content.innerHTML = `
+        <div class="space-y-8">
+            <!-- Analysis Summary -->
+            <div class="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-6 border border-purple-200">
+                <h4 class="text-xl font-bold text-slate-800 mb-4 flex items-center">
+                    <i class="fas fa-chart-bar text-purple-600 mr-3"></i>
+                    Competitive Intelligence Report
+                </h4>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-purple-600">${data.competitors?.length || 0}</div>
+                        <div class="text-sm text-slate-600">Competitors Analyzed</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-blue-600">${data.totalDataPoints || 0}</div>
+                        <div class="text-sm text-slate-600">Data Points</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-emerald-600">${data.aiAnalysis ? '✓' : '✗'}</div>
+                        <div class="text-sm text-slate-600">AI Analysis</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-amber-600">${data.timestamp ? new Date(data.timestamp).toLocaleDateString() : 'N/A'}</div>
+                        <div class="text-sm text-slate-600">Generated</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- AI Analysis Results -->
+            ${data.aiAnalysis ? `
+                <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-lg">
+                    <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6">
+                        <h4 class="text-xl font-bold flex items-center">
+                            <i class="fas fa-robot mr-3"></i>
+                            AI Strategic Analysis
+                        </h4>
+                        <p class="text-blue-100 mt-2">Expert-level competitive intelligence powered by GPT-4</p>
+                    </div>
+                    <div class="p-6">
+                        <div class="prose max-w-none">
+                            ${formatAIAnalysis(data.aiAnalysis)}
+                        </div>
+                    </div>
+                </div>
+            ` : ''}
+            
+            <!-- Competitor Data -->
+            ${data.competitors && data.competitors.length > 0 ? `
+                <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-lg">
+                    <div class="bg-gray-50 p-6 border-b">
+                        <h4 class="text-xl font-bold text-slate-800 flex items-center">
+                            <i class="fas fa-database mr-3"></i>
+                            Scraped Competitor Data
+                        </h4>
+                    </div>
+                    <div class="p-6">
+                        <div class="space-y-6">
+                            ${data.competitors.map(competitor => `
+                                <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <h5 class="font-bold text-slate-800 flex items-center">
+                                            <i class="fas fa-external-link-alt mr-2 text-blue-500"></i>
+                                            ${competitor.url}
+                                        </h5>
+                                        <span class="px-3 py-1 rounded-full text-xs font-bold ${competitor.isSSL ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}">
+                                            ${competitor.isSSL ? 'SSL ✓' : 'No SSL ✗'}
+                                        </span>
+                                    </div>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm mb-4">
+                                        <div>
+                                            <span class="text-slate-600 font-medium">Title:</span>
+                                            <div class="font-medium text-slate-800">${competitor.title || 'N/A'}</div>
+                                        </div>
+                                        <div>
+                                            <span class="text-slate-600 font-medium">Word Count:</span>
+                                            <div class="font-medium text-slate-800">${competitor.wordCount || 0}</div>
+                                        </div>
+                                        <div>
+                                            <span class="text-slate-600 font-medium">Links:</span>
+                                            <div class="font-medium text-slate-800">${competitor.internalLinks || 0} int, ${competitor.externalLinks || 0} ext</div>
+                                        </div>
+                                        <div>
+                                            <span class="text-slate-600 font-medium">Images:</span>
+                                            <div class="font-medium text-slate-800">${competitor.imageCount || 0}</div>
+                                        </div>
+                                    </div>
+                                    ${competitor.metaDescription ? `
+                                        <div class="p-3 bg-gray-50 rounded text-sm">
+                                            <span class="text-slate-600 font-medium">Meta Description:</span>
+                                            <div class="mt-1 text-slate-700">${competitor.metaDescription}</div>
+                                        </div>
+                                    ` : ''}
+                                    ${competitor.h1Tags && competitor.h1Tags.length > 0 ? `
+                                        <div class="mt-3 p-3 bg-blue-50 rounded text-sm">
+                                            <span class="text-slate-600 font-medium">H1 Tags:</span>
+                                            <div class="mt-1 text-slate-700">${competitor.h1Tags.join(', ')}</div>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            ` : ''}
+            
+            <!-- Action Buttons -->
+            <div class="text-center space-x-4">
+                <button 
+                    onclick="exportDeepScanReport()" 
+                    class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300"
+                >
+                    <i class="fas fa-download mr-2"></i>
+                    Export Report
+                </button>
+                <button 
+                    onclick="renderDeepScanSection({brandName: '${data.brandName}'})" 
+                    class="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300"
+                >
+                    <i class="fas fa-redo mr-2"></i>
+                    Run New Scan
+                </button>
+            </div>
+        </div>
+    `;
+    
+    // Scroll to results
+    document.getElementById('deep-scan-section').scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+    });
+}
+
+function formatAIAnalysis(analysis) {
+    if (!analysis) return '';
+    
+    // Convert the AI analysis text to HTML with proper formatting
+    return analysis
+        .replace(/\*\*(.*?)\*\*/g, '<strong class="text-slate-900">$1</strong>') // Bold
+        .replace(/\*(.*?)\*/g, '<em class="text-slate-700">$1</em>') // Italic
+        .replace(/###\s(.*?)$/gm, '<h3 class="text-lg font-bold text-slate-800 mt-6 mb-3 border-l-4 border-purple-500 pl-4">$1</h3>') // H3 headers
+        .replace(/##\s(.*?)$/gm, '<h2 class="text-xl font-bold text-slate-800 mt-8 mb-4 border-l-4 border-blue-500 pl-4">$1</h2>') // H2 headers
+        .replace(/^\d+\.\s(.*?)$/gm, '<div class="ml-4 mb-2 flex items-start"><span class="w-6 h-6 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center text-xs font-bold mr-3 mt-0.5 flex-shrink-0">•</span><span class="font-medium text-slate-800">$1</span></div>') // Numbered lists
+        .replace(/^-\s(.*?)$/gm, '<div class="ml-4 mb-2 flex items-start"><span class="w-2 h-2 bg-blue-500 rounded-full mr-3 mt-2 flex-shrink-0"></span><span class="text-slate-700">$1</span></div>') // Bullet points
+        .replace(/\n\n/g, '</p><p class="mb-4 text-slate-700 leading-relaxed">') // Paragraphs
+        .replace(/^/, '<p class="mb-4 text-slate-700 leading-relaxed">') // Start with paragraph
+        .replace(/$/, '</p>'); // End with paragraph
+}
+
+function exportDeepScanReport() {
+    // This would implement report export functionality
+    // For now, show a placeholder
+    alert('📊 Report export feature coming soon!\n\nThis will generate a professional PDF report with:\n• AI analysis summary\n• Competitor data tables\n• Strategic recommendations\n• Threat assessment matrix');
 }

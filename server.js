@@ -371,50 +371,59 @@ app.get('/analytics', async (req, res) => {
 // Deep Scan endpoint (Premium feature)
 app.post('/deep-scan', async (req, res) => {
   try {
-    const { competitorUrl, brandName } = req.body;
+    const { brandName } = req.body;
     
-    if (!competitorUrl || !brandName) {
+    if (!brandName) {
       return res.status(400).json({ 
-        message: 'Missing required parameters: competitorUrl and brandName' 
+        message: 'Missing required parameter: brandName' 
       });
     }
 
-    console.log(`🔍 Deep Scan requested for: ${competitorUrl} vs ${brandName}`);
+    console.log(`🔍 Deep Scan requested for brand: ${brandName}`);
     
     // Track deep scan analytics
-    await databaseService.updateAnalytics('deep_scan_started', brandName, {
-      competitorUrl: competitorUrl
-    });
+    await databaseService.updateAnalytics('deep_scan_started', brandName);
 
-    // Perform deep scan with AI analysis
-    const result = await deepScanService.performDeepScan(competitorUrl, brandName);
+    // Get competitor URLs from Google search results
+    const googleResults = await getGoogleResults(brandName);
+    const competitorUrls = googleResults.slice(0, 5).map(result => result.link);
+    
+    if (competitorUrls.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'No competitors found for analysis'
+      });
+    }
+
+    // Perform deep scan with AI analysis on multiple competitors
+    const result = await deepScanService.performMultipleDeepScan(competitorUrls, brandName);
 
     if (result.success) {
       // Track successful deep scan
       await databaseService.updateAnalytics('deep_scan_completed', brandName, {
-        competitorUrl: competitorUrl,
-        wordCount: result.scrapedData.wordCount,
-        internalLinks: result.scrapedData.internalLinks
+        competitorsAnalyzed: result.data.competitors?.length || 0,
+        totalDataPoints: result.data.totalDataPoints || 0
       });
 
       res.json({
         success: true,
-        brandName: brandName,
-        competitorUrl: competitorUrl,
-        scrapedData: result.scrapedData,
-        analysis: result.analysis,
-        timestamp: result.timestamp
+        data: {
+          brandName: brandName,
+          competitors: result.data.competitors,
+          aiAnalysis: result.data.aiAnalysis,
+          totalDataPoints: result.data.totalDataPoints,
+          timestamp: result.data.timestamp
+        }
       });
     } else {
       // Track failed deep scan
       await databaseService.updateAnalytics('deep_scan_failed', brandName, {
-        competitorUrl: competitorUrl,
         error: result.error
       });
 
       res.status(500).json({
         success: false,
-        message: result.error || 'Deep scan failed'
+        error: result.error || 'Deep scan failed'
       });
     }
 

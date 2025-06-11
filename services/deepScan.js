@@ -1,4 +1,4 @@
-// Deep Scan Service - Web Scraping + AI Analysis
+// Deep Scan Service - Advanced Web Analysis + AI Intelligence
 const axios = require('axios');
 const cheerio = require('cheerio');
 const OpenAI = require('openai');
@@ -15,16 +15,16 @@ class DeepScanService {
     try {
       console.log(`🔍 Starting Deep Scan for: ${competitorUrl}`);
       
-      // Step 1: Scrape competitor website
-      const scrapedData = await this.scrapeWebsite(competitorUrl);
+      // Step 1: Analyze competitor website
+      const analyzedData = await this.analyzeWebsite(competitorUrl);
       
-      // Step 2: Analyze with AI
-      const analysis = await this.generateAIAnalysis(scrapedData, userBrandName, competitorUrl);
+      // Step 2: Generate AI intelligence report
+      const analysis = await this.generateAIAnalysis(analyzedData, userBrandName, competitorUrl);
       
       return {
         success: true,
         competitorUrl: competitorUrl,
-        scrapedData: scrapedData,
+        analyzedData: analyzedData,
         analysis: analysis,
         timestamp: new Date().toISOString()
       };
@@ -39,15 +39,15 @@ class DeepScanService {
     }
   }
 
-  // Web scraping function with ethical practices
-  async scrapeWebsite(url) {
+  // Website analysis function with professional data extraction
+  async analyzeWebsite(url) {
     try {
       // Ensure URL has protocol
       if (!url.startsWith('http://') && !url.startsWith('https://')) {
         url = 'https://' + url;
       }
 
-      console.log(`📡 Scraping: ${url}`);
+      console.log(`📡 Analyzing: ${url}`);
 
       // Make request with proper headers
       const response = await axios.get(url, {
@@ -66,18 +66,21 @@ class DeepScanService {
       // Parse HTML with Cheerio
       const $ = cheerio.load(response.data);
 
-      // Extract key data points
-      const scrapedData = {
-        url: url,
+      // Get the final URL after redirects (the actual URL that was reached)
+      const finalUrl = response.request.res?.responseUrl || response.config.url || url;
+
+      // Extract key data points (17 comprehensive metrics)
+      const analyzedData = {
+        url: finalUrl,
         title: $('title').text().trim() || 'No title found',
         metaDescription: $('meta[name="description"]').attr('content') || $('meta[property="og:description"]').attr('content') || 'No meta description found',
         h1: $('h1').first().text().trim() || 'No H1 found',
         h2Count: $('h2').length,
         h3Count: $('h3').length,
         wordCount: this.estimateWordCount($('body').text()),
-        internalLinks: this.countInternalLinks($, url),
-        externalLinks: this.countExternalLinks($, url),
-        hasSSL: url.startsWith('https://'),
+        internalLinks: this.countInternalLinks($, finalUrl),
+        externalLinks: this.countExternalLinks($, finalUrl),
+        hasSSL: finalUrl.startsWith('https://'),
         images: $('img').length,
         imagesWithAlt: $('img[alt]').length,
         socialLinks: this.findSocialLinks($),
@@ -87,19 +90,19 @@ class DeepScanService {
         metaRobots: $('meta[name="robots"]').attr('content') || null
       };
 
-      console.log('✅ Scraping completed successfully');
-      console.log(`📊 Data extracted: ${scrapedData.wordCount} words, ${scrapedData.internalLinks} internal links`);
+      console.log('✅ Website analysis completed successfully');
+      console.log(`📊 Data extracted: ${analyzedData.wordCount} words, ${analyzedData.internalLinks} internal links`);
 
-      return scrapedData;
+      return analyzedData;
 
     } catch (error) {
-      console.error('Scraping error:', error.message);
-      throw new Error(`Failed to scrape ${url}: ${error.message}`);
+      console.error('Website analysis error:', error.message);
+      throw new Error(`Failed to analyze ${url}: ${error.message}`);
     }
   }
 
-  // AI Analysis using your prompt engineering strategy
-  async generateAIAnalysis(scrapedData, userBrandName, competitorUrl) {
+  // AI Analysis using advanced prompt engineering strategy
+  async generateAIAnalysis(analyzedData, userBrandName, competitorUrl) {
     try {
       console.log('🧠 Generating AI analysis...');
 
@@ -116,9 +119,9 @@ IMPORTANT: Your final output MUST follow this exact format, including all emojis
 **User's Brand Name:** "${userBrandName}"
 **Competitor's Domain:** "${domain}"
 
-**Competitor's Scraped Data:**
+**Competitor's Analyzed Data (17 Key Metrics):**
 \`\`\`json
-${JSON.stringify(scrapedData, null, 2)}
+${JSON.stringify(analyzedData, null, 2)}
 \`\`\`
 
 Generate the DEEP SCAN ANALYSIS report in this exact format:
@@ -220,6 +223,72 @@ DEEP SCAN ANALYSIS: ${domain}
     });
     
     return count;
+  }
+
+  // Function to perform deep scan on multiple competitors
+  async performMultipleDeepScan(competitorUrls, brandName) {
+    console.log(`🚀 Starting multi-competitor deep scan for: ${brandName}`);
+    console.log(`📊 Analyzing ${competitorUrls.length} competitors:`, competitorUrls);
+    
+    try {
+      const results = [];
+      let totalDataPoints = 0;
+      
+      // Analyze each competitor (process all available URLs for comprehensive analysis)
+      const urlsToProcess = competitorUrls.slice(0, 5); // Analyze up to 5 competitors
+      
+      for (let i = 0; i < urlsToProcess.length; i++) {
+        const url = urlsToProcess[i];
+        console.log(`🔍 Analyzing competitor ${i + 1}/${urlsToProcess.length}: ${url}`);
+        
+        try {
+          const analyzedData = await this.analyzeWebsite(url);
+          if (analyzedData) {
+            results.push(analyzedData);
+            // Count data points (17 metrics per competitor)
+            totalDataPoints += Object.keys(analyzedData).length;
+          }
+        } catch (error) {
+          console.error(`❌ Failed to analyze ${url}:`, error.message);
+          // Continue with other competitors even if one fails
+        }
+      }
+      
+      if (results.length === 0) {
+        return {
+          success: false,
+          error: 'No competitor data could be analyzed'
+        };
+      }
+      
+      console.log(`✅ Successfully analyzed ${results.length} competitors`);
+      
+      // Generate AI analysis for the best competitor (highest word count)
+      const bestCompetitor = results.reduce((best, current) => 
+        current.wordCount > best.wordCount ? current : best
+      );
+      
+      console.log('🤖 Generating AI analysis for best competitor...');
+      const aiAnalysis = await this.generateAIAnalysis(bestCompetitor, brandName, bestCompetitor.url);
+      
+      return {
+        success: true,
+        data: {
+          brandName: brandName,
+          competitors: results,
+          aiAnalysis: aiAnalysis,
+          totalDataPoints: totalDataPoints,
+          timestamp: new Date().toISOString()
+        }
+      };
+      
+    } catch (error) {
+      console.error('❌ Multi-competitor deep scan failed:', error);
+      return {
+        success: false,
+        error: error.message || 'Multi-competitor deep scan failed'
+      };
+    }
   }
 }
 
